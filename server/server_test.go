@@ -2,9 +2,9 @@ package server_test
 
 import (
 	"fmt"
-	"github.com/defcube/webservice-proxy/httpclient"
 	"github.com/defcube/webservice-proxy/server"
-	"github.com/defcube/webservice-proxy/stoppablehttpserver"
+	"github.com/defcube/webservice-proxy/server/httpclient"
+	"github.com/defcube/webservice-proxy/server/stoppablehttpserver"
 	"net/http"
 	"net/url"
 	"testing"

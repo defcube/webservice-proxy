@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var Log = log.New(os.Stderr, "httpclient", log.LstdFlags)
+var Log = log.New(os.Stderr, "server.httpclient", log.LstdFlags)
 
 func MustHttpPostForm(url string, v url.Values) string {
 	return MustHttpPostFormWithTimeout(url, v, 0)
