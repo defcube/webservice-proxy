@@ -32,5 +32,5 @@ type EchoHandler struct {
 }
 
 func (s *EchoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, r.PostFormValue("echoval"), r.RequestURI)
+	fmt.Fprint(w, r.PostFormValue("echoval"))
 }
