@@ -1,6 +1,11 @@
 package main
-import "fmt"
+import (
+	"net/http"
+	"github.com/defcube/webservice-proxy/server"
+)
 
 func main() {
-	fmt.Println("placeholder")
+	s := server.Server{}
+	http.ListenAndServe("localhost:8000", &s)
 }
+
