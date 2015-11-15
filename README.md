@@ -15,3 +15,4 @@ This project is still just a dream. It's under development, but time well tell h
     * warn-if-more-than-X-slow-connections: 200 default
     * fail-if-more-than-X-slow-connections: 0 default (never fail)
     * max-timeout: 45 seconds default
+* Make the proxy handle edge cases properly
