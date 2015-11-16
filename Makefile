@@ -6,7 +6,7 @@ publish: installgobindata generatestatic install
 devmode: devel = 1
 devmode: publish
 
-entrdev:
+entrdev: devmode
 	find . -iname "*.go"  | entr -r make installAndRun
 
 install:
