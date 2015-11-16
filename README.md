@@ -2,9 +2,12 @@
 
 This project is still just a dream. It's under development, but time well tell how far I get!
 
-## Roadmap
+## Completed from Roadmap
 
 * Create proxy that handles POSTs
+
+## Roadmap TODO
+
 * Stats page that shows all URLs seen
 * Clustering of servers (ring?)
 * Stats page stats and config options
@@ -16,3 +19,4 @@ This project is still just a dream. It's under development, but time well tell h
     * fail-if-more-than-X-slow-connections: 0 default (never fail)
     * max-timeout: 45 seconds default
 * Make the proxy handle edge cases properly
+* More stateful stats page (not just in RAM without any way to save itself)

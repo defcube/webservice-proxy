@@ -3,8 +3,8 @@ package server_test
 import (
 	"fmt"
 	"github.com/defcube/webservice-proxy/server"
-	"github.com/defcube/webservice-proxy/server/httpclient"
-	"github.com/defcube/webservice-proxy/server/stoppablehttpserver"
+	"github.com/defcube/webservice-proxy/server/testhelpers/httpclient"
+	"github.com/defcube/webservice-proxy/server/testhelpers/stoppablehttpserver"
 	"net/http"
 	"net/url"
 	"testing"
@@ -26,6 +26,16 @@ func TestProxyPost(t *testing.T) {
 	if r != "foobar" {
 		t.Fatal("Unexpected response:", r)
 	}
+}
+
+func TestAdminIndex(t *testing.T) {
+	s := stoppablehttpserver.New(":8098", &server.Server{})
+	defer s.Stop()
+	r, err := httpclient.HttpPostForm("http://localhost:8098/admin/", url.Values{})
+	if err != nil {
+		panic(err)
+	}
+	t.Fatal("Response was:", r) // TODO improve this
 }
 
 type EchoHandler struct {
