@@ -48,7 +48,6 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 		panic("missing url") // todo handle gracefully
 	}
 	form.Del("-url")
-
 	client := http.Client{}
 	resp, err := client.PostForm(url, form)
 	if err != nil {

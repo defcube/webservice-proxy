@@ -1,12 +1,16 @@
 export devel=0
+.DEFAULT_GOAL=install
 
-all: installgobindata generatestatic install
+publish: installgobindata generatestatic install
 
 devmode: devel = 1
-devmode: all
+devmode: publish
 
 install:
 	go install github.com/defcube/webservice-proxy
+
+installAndRun: install
+	webservice-proxy
 
 generatestatic:
 	$(MAKE) -C server all
