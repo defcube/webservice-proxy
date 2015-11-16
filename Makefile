@@ -6,6 +6,9 @@ publish: installgobindata generatestatic install
 devmode: devel = 1
 devmode: publish
 
+entrdev:
+	find . -iname "*.go"  | entr -r make installAndRun
+
 install:
 	go install github.com/defcube/webservice-proxy
 
