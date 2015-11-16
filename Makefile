@@ -1,10 +1,12 @@
 export devel=0
 
-all: installgobindata generatestatic
-	go install github.com/defcube/webservice-proxy
+all: installgobindata generatestatic install
 
-dev: devel = 1
-dev: all
+devmode: devel = 1
+devmode: all
+
+install:
+	go install github.com/defcube/webservice-proxy
 
 generatestatic:
 	$(MAKE) -C server all
