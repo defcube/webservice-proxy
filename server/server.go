@@ -7,12 +7,18 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 type Server struct {
+	initOnce sync.Once
 }
 
-var templates *template.Template
+var (
+	// todo refactor this to live inside Server
+	// templates contains all the imported templates from /templates/
+	templates *template.Template
+)
 
 func init() {
 	var t *template.Template
