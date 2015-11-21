@@ -17,27 +17,9 @@ type Server struct {
 
 	// staticServer serves from /static/
 	staticServer http.Handler
-}
 
-var (
-	// todo refactor this to live inside Server
 	// templates contains all the imported templates from /templates/
 	templates *template.Template
-)
-
-func init() {
-	var t *template.Template
-	for _, fn := range templatepkg.AssetNames() {
-		if strings.HasSuffix(fn, ".html") {
-			if templates == nil {
-				templates = template.New(fn)
-				t = templates
-			} else {
-				t = templates.New(fn)
-			}
-			t.Parse(string(templatepkg.MustAsset(fn)))
-		}
-	}
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -45,11 +27,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.staticServer = http.FileServer(&assetfs.AssetFS{Asset: static.Asset, AssetDir: static.AssetDir, Prefix: ""})
 		s.staticServer = http.StripPrefix("/static", s.staticServer)
 
+		var t *template.Template
+		for _, fn := range templatepkg.AssetNames() {
+			if strings.HasSuffix(fn, ".html") {
+				if s.templates == nil {
+					s.templates = template.New(fn)
+					t = s.templates
+				} else {
+					t = s.templates.New(fn)
+				}
+				t.Parse(string(templatepkg.MustAsset(fn)))
+			}
+		}
+
 	})
 	if r.RequestURI == "/" {
 		s.handleProxy(w, r)
 	} else if strings.HasPrefix(r.RequestURI, "/admin/") {
-		templates.ExecuteTemplate(w, "index.html", nil)
+		s.templates.ExecuteTemplate(w, "index.html", nil)
 	} else if strings.HasPrefix(r.RequestURI, "/static/") {
 		s.staticServer.ServeHTTP(w, r)
 	} else {
