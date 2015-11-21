@@ -2,7 +2,9 @@ package server
 
 import (
 	"fmt"
+	"github.com/defcube/webservice-proxy/server/static"
 	templatepkg "github.com/defcube/webservice-proxy/server/templates"
+	"github.com/elazarl/go-bindata-assetfs"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -40,6 +42,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.handleProxy(w, r)
 	} else if strings.HasPrefix(r.RequestURI, "/admin/") {
 		templates.ExecuteTemplate(w, "index.html", nil)
+	} else if strings.HasPrefix(r.RequestURI, "/static/") {
+		fs := http.FileServer(&assetfs.AssetFS{Asset: static.Asset, AssetDir: static.AssetDir, Prefix: ""})
+		fs = http.StripPrefix("/static", fs)
+		fs.ServeHTTP(w, r)
 	} else {
 		w.WriteHeader(404)
 		fmt.Fprint(w, "404 not found")
