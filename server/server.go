@@ -13,7 +13,7 @@ import (
 )
 
 type Server struct {
-	initOnce sync.Once
+	syncInitOnce sync.Once
 
 	// staticServer serves from /static/
 	staticServer http.Handler
@@ -22,8 +22,8 @@ type Server struct {
 	templates *template.Template
 }
 
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.initOnce.Do(func() {
+func (s *Server) init() {
+	s.syncInitOnce.Do(func() {
 		s.staticServer = http.FileServer(&assetfs.AssetFS{Asset: static.Asset, AssetDir: static.AssetDir, Prefix: ""})
 		s.staticServer = http.StripPrefix("/static", s.staticServer)
 
@@ -41,6 +41,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 	})
+}
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.init()
 	if r.RequestURI == "/" {
 		s.handleProxy(w, r)
 	} else if strings.HasPrefix(r.RequestURI, "/admin/") {
