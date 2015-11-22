@@ -2,11 +2,13 @@ package server
 
 import (
 	"fmt"
+	"github.com/bluele/gforms"
 	"github.com/defcube/webservice-proxy/server/static"
 	templatepkg "github.com/defcube/webservice-proxy/server/templates"
 	"github.com/elazarl/go-bindata-assetfs"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -22,7 +24,7 @@ type Server struct {
 	templates *template.Template
 }
 
-func (s *Server) init() {
+func (s *Server) Init() {
 	s.syncInitOnce.Do(func() {
 		s.staticServer = http.FileServer(&assetfs.AssetFS{Asset: static.Asset, AssetDir: static.AssetDir, Prefix: ""})
 		s.staticServer = http.StripPrefix("/static", s.staticServer)
@@ -36,19 +38,18 @@ func (s *Server) init() {
 				} else {
 					t = s.templates.New(fn)
 				}
-				t.Parse(string(templatepkg.MustAsset(fn)))
+				template.Must(t.Parse(string(templatepkg.MustAsset(fn))))
 			}
 		}
-
 	})
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.init()
+	s.Init()
 	if r.RequestURI == "/" {
 		s.handleProxy(w, r)
 	} else if strings.HasPrefix(r.RequestURI, "/admin/") {
-		s.templates.ExecuteTemplate(w, "index.html", nil)
+		s.handleAdmin(w, r)
 	} else if strings.HasPrefix(r.RequestURI, "/static/") {
 		s.staticServer.ServeHTTP(w, r)
 	} else {
@@ -76,4 +77,17 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 		panic(err) // todo
 	}
 	w.Write(respBody)
+}
+
+func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
+	f := gforms.DefineForm(gforms.NewFields(
+		gforms.NewTextField("Foo", nil, nil),
+	))(r)
+	fi := f.Fields()[0]
+	log.Println(fi.Html())
+	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{
+		"Form": f, "Field": fi, "H": template.HTML(fi.Html())})
+	if err != nil {
+		panic(err)
+	}
 }

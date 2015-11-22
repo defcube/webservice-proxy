@@ -6,5 +6,15 @@
 </head>
 <body>
     Index goes here
+    <form method="post">
+        {{.H}}
+        yo
+
+        {{range $i, $field := .Form.Fields}}
+        <label>{{$field.GetName}}: </label>{{$i}}
+        {{$field.Html | safe}}
+        {{range $ei, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end}}<br />
+        {{end}}<input type="submit">
+    </form>
 </body>
 </html>
