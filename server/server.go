@@ -8,7 +8,6 @@ import (
 	"github.com/elazarl/go-bindata-assetfs"
 	"html/template"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -34,6 +33,11 @@ func (s *Server) Init() {
 			if strings.HasSuffix(fn, ".html") {
 				if s.templates == nil {
 					s.templates = template.New(fn)
+					s.templates.Funcs(map[string]interface{}{
+						"safeHTML": func(s interface{}) template.HTML {
+							return template.HTML(fmt.Sprintf("%v", s))
+						},
+					})
 					t = s.templates
 				} else {
 					t = s.templates.New(fn)
@@ -84,7 +88,6 @@ func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
 		gforms.NewTextField("Foo", nil, nil),
 	))(r)
 	fi := f.Fields()[0]
-	log.Println(fi.Html())
 	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{
 		"Form": f, "Field": fi, "H": template.HTML(fi.Html())})
 	if err != nil {

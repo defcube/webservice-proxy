@@ -12,7 +12,7 @@
 
         {{range $i, $field := .Form.Fields}}
         <label>{{$field.GetName}}: </label>{{$i}}
-        {{$field.Html | safe}}
+        {{$field.Html | safeHTML}}
         {{range $ei, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end}}<br />
         {{end}}<input type="submit">
     </form>
