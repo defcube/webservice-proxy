@@ -8,9 +8,9 @@
 package static
 
 import (
+	"net/http"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -136,9 +136,9 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"Makefile":           makefile,
+	"Makefile": makefile,
 	"bindata_assetfs.go": bindata_assetfsGo,
-	"teststatic.txt":     teststaticTxt,
+	"teststatic.txt": teststaticTxt,
 }
 
 // AssetDir returns the file names below a certain
@@ -180,11 +180,10 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
-
 var _bintree = &bintree{nil, map[string]*bintree{
-	"Makefile":           &bintree{makefile, map[string]*bintree{}},
+	"Makefile": &bintree{makefile, map[string]*bintree{}},
 	"bindata_assetfs.go": &bintree{bindata_assetfsGo, map[string]*bintree{}},
-	"teststatic.txt":     &bintree{teststaticTxt, map[string]*bintree{}},
+	"teststatic.txt": &bintree{teststaticTxt, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory
@@ -233,6 +232,7 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
+
 
 func assetFS() http.FileSystem {
 	for k := range _bintree.Children {

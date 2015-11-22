@@ -2,16 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Index</title>
+    <title>Admin</title>
 </head>
 <body>
-    Index goes here
-    <form method="post">
-        {{range $i, $field := .Form.Fields}}
-        <label>{{$field.GetName}}: </label>
-        {{$field.Html | safeHTML}}
-        {{range $ei, $err := $field.Errors}}<label class="error">{{$err}}</label>{{end}}<br />
-        {{end}}<input type="submit">
-    </form>
+Admin
 </body>
 </html>
