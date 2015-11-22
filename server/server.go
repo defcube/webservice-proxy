@@ -8,6 +8,7 @@ import (
 	"github.com/elazarl/go-bindata-assetfs"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -83,13 +84,18 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	w.Write(respBody)
 }
 
+var adminForm = gforms.DefineForm(gforms.NewFields(
+	gforms.NewTextField("Foo", gforms.Validators{gforms.Required(), gforms.MaxLengthValidator(3)}),
+	gforms.NewTextField("Bar", gforms.Validators{}),
+))
+
 func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
-	f := gforms.DefineForm(gforms.NewFields(
-		gforms.NewTextField("Foo", nil, nil),
-	))(r)
-	fi := f.Fields()[0]
-	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{
-		"Form": f, "Field": fi, "H": template.HTML(fi.Html())})
+	f := adminForm(r)
+	if r.Method == "POST" {
+		log.Println("Is Valid Form?", f.IsValid())
+		log.Println(f.CleanedData)
+	}
+	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{"Form": f})
 	if err != nil {
 		panic(err)
 	}
