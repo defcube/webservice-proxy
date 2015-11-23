@@ -11,6 +11,8 @@ import (
 	"sync"
 )
 
+// todo remove all bindata
+
 type Server struct {
 	syncInitOnce sync.Once
 
@@ -27,10 +29,10 @@ func (s *Server) Init() {
 		s.staticServer = http.StripPrefix("/static", s.staticServer)
 
 		var t *template.Template
-		for _, fn := range templatepkg.AssetNames() {
-			if strings.HasSuffix(fn, ".html") {
+		for _, fileName := range templatepkg.AssetNames() {
+			if strings.HasSuffix(fileName, ".html") {
 				if s.templates == nil {
-					s.templates = template.New(fn)
+					s.templates = template.New(fileName)
 					s.templates.Funcs(map[string]interface{}{
 						"safeHTML": func(s interface{}) template.HTML {
 							return template.HTML(fmt.Sprintf("%v", s))
@@ -38,9 +40,9 @@ func (s *Server) Init() {
 					})
 					t = s.templates
 				} else {
-					t = s.templates.New(fn)
+					t = s.templates.New(fileName)
 				}
-				template.Must(t.Parse(string(templatepkg.MustAsset(fn))))
+				template.Must(t.Parse(string(templatepkg.MustAsset(fileName))))
 			}
 		}
 	})
