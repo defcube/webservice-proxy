@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/defcube/webservice-proxy/server/static"
+	"github.com/defcube/webservice-proxy/server/stats"
 	templatepkg "github.com/defcube/webservice-proxy/server/templates"
 	"github.com/elazarl/go-bindata-assetfs"
 	"html/template"
@@ -21,6 +22,8 @@ type Server struct {
 
 	// templates contains all the imported templates from /templates/
 	templates *template.Template
+
+	records *stats.Records
 }
 
 func (s *Server) Init() {

@@ -25,6 +25,7 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err) // todo
 	}
+	s.records.RecordRequest(url)
 	w.Write(respBody)
 }
 
