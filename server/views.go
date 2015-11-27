@@ -25,7 +25,7 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err) // todo
 	}
-	s.records.RecordRequest(url)
+	s.statsRecords.RecordRequest(url)
 	w.Write(respBody)
 }
 
@@ -35,7 +35,10 @@ var adminForm = gforms.DefineForm(gforms.NewFields(
 ))
 
 func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
-	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{})
+	recordList := s.statsRecords.List()
+	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{
+		"StatsRecords": recordList,
+	})
 	if err != nil {
 		panic(err)
 	}

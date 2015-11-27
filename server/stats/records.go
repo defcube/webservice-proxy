@@ -60,6 +60,7 @@ func (rs *Records) MustRecordRequest(url string) {
 // List provides threadsafe access to the internal list. Raises an
 // error if buffers are full
 func (rs *Records) List() map[string]*record {
+	rs.Init()
 	done := make(chan map[string]*record)
 	rs.requests <- func() {
 		newMap := make(map[string]*record)

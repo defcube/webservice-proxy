@@ -9,10 +9,11 @@
 <h2>Recently seen URLs</h2>
 
 <table>
+    {{ range $stats := .StatsRecords }}
     <div class="url-list-item">
         <ul>
-            <li>URL:</li>
-            <li>Total Requests: 2999100 since 2014-01-01 12:00:00</li>
+            <li>URL: {{ $stats.Url }}</li>
+            <li>Total Requests: {{$stats.TotalRequests.String}} since {{$stats.CreatedAt}}</li>
             <!-- TODO
             <li>Failures: 0 since 2014-01-01 12:00:00</li>
             <li>Simultaneous waits: 58/100 currently. Max was 157 on 2014-01-01 12:00:00.</li>
@@ -23,6 +24,7 @@
             <!-- TODO better response times reporting (histogram)-->
         </ul>
     </div>
+    {{ end }}
 </table>
 
 </body>

@@ -23,7 +23,7 @@ type Server struct {
 	// templates contains all the imported templates from /templates/
 	templates *template.Template
 
-	records *stats.Records
+	statsRecords stats.Records
 }
 
 func (s *Server) Init() {
