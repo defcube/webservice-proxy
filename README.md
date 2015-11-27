@@ -8,7 +8,6 @@ This project is still just a dream. It's under development, but time well tell h
 
 ## Roadmap TODO
 
-* Stats page that shows all URLs seen
 * Clustering of servers (ring?)
 * Stats page stats and config options
     * min,max,mean,median successful request times in past 10 minutes
