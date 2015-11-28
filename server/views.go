@@ -23,6 +23,19 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 		panic("missing url") // todo handle gracefully
 	}
 
+	// Look out for things closing when they shouldn't
+	closeCh := w.(http.CloseNotifier).CloseNotify()
+	doneCh := make(chan bool, 1)
+	defer func() { doneCh <- true }()
+	go func() {
+		select {
+		case <-closeCh:
+			s.statsRecords.RecordClientHangup(targetUrl)
+		case <-doneCh:
+			// this makes it so we don't wait forever if closeCh never fires
+		}
+	}()
+
 	// Get the timeout
 	timeoutSecondsStr := form.Get("-timeoutSeconds")
 	form.Del("-timeoutSeconds")
@@ -33,6 +46,8 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		timeoutSeconds = 60
 	}
+
+	s.statsRecords.RecordRequest(targetUrl)
 
 	client := http.Client{Timeout: time.Duration(timeoutSeconds) * time.Second}
 	resp, err := client.PostForm(targetUrl, form)
@@ -45,7 +60,7 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		w.WriteHeader(500)
-		fmt.Fprint(w, "Error:", err)
+		s.writeResponse(w, []byte(fmt.Sprint("Error:", err)), targetUrl)
 		return
 	}
 	w.WriteHeader(resp.StatusCode)
@@ -53,8 +68,18 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err) // todo
 	}
-	s.statsRecords.RecordRequest(targetUrl)
-	w.Write(respBody)
+	s.writeResponse(w, respBody, targetUrl)
+}
+
+func (s *Server) writeResponse(w http.ResponseWriter, respBody []byte, targetUrl string) {
+	i, err := w.Write(respBody)
+	if err != nil {
+		log.Println("Got error writing response:", i, "Err:", err)
+	}
+}
+
+func (s *Server) handleStatsNumClientHangups(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(s.statsRecords.NumClientHangups().String()))
 }
 
 var adminForm = gforms.DefineForm(gforms.NewFields(

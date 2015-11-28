@@ -59,6 +59,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.handleFormTest(w, r)
 	} else if r.RequestURI == "/admin/" {
 		s.handleAdmin(w, r)
+	} else if r.RequestURI == "/stats/numClientHangups/" {
+		s.handleStatsNumClientHangups(w, r)
 	} else if strings.HasPrefix(r.RequestURI, "/static/") {
 		s.staticServer.ServeHTTP(w, r)
 	} else {

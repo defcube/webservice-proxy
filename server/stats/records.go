@@ -2,6 +2,7 @@ package stats
 
 import (
 	"errors"
+	"math/big"
 	"sync"
 )
 
@@ -29,25 +30,42 @@ func (rs *Records) processRequests() {
 
 var WorkBufferFullError = errors.New("Work buffer is full")
 
-// RecordRequest will create or update a record. If the
-// stats logging system can't keep up with the buffer, an error will
-// be returned and this function should be re-engineered.
-func (rs *Records) RecordRequest(url string) error {
-	rs.Init()
-	addFunc := func() {
-		r, ok := rs.urlRecordMap[url]
-		if !ok {
-			r = newRecord(url)
-			rs.urlRecordMap[url] = r
-		}
-		r.addRequest()
+// getOrCreateRecord is a non-threadsafe function that gets or creates the record for the given url
+func (rs *Records) getOrCreateRecord(url string) *record {
+	r, ok := rs.urlRecordMap[url]
+	if !ok {
+		r = newRecord(url)
+		rs.urlRecordMap[url] = r
 	}
+	return r
+}
+
+// addUrlRecordMapRequest requests that the function f be ran in a single thread.
+// This is the safe way to interact with the urlRecordMap
+func (rs *Records) addUrlRecordMapRequest(f func()) error {
+	rs.Init()
 	select {
-	case rs.requests <- addFunc:
+	case rs.requests <- f:
 		return nil
 	default:
 		return WorkBufferFullError
 	}
+
+}
+
+// RecordRequest will create or update a record. If the
+// stats logging system can't keep up with the buffer, an error will
+// be returned and this function should be re-engineered.
+func (rs *Records) RecordRequest(url string) error {
+	return rs.addUrlRecordMapRequest(func() {
+		rs.getOrCreateRecord(url).addRequest()
+	})
+}
+
+func (rs *Records) RecordClientHangup(url string) error {
+	return rs.addUrlRecordMapRequest(func() {
+		rs.getOrCreateRecord(url).addClientHangup()
+	})
 }
 
 func (rs *Records) MustRecordRequest(url string) {
@@ -68,6 +86,19 @@ func (rs *Records) List() map[string]*record {
 			newMap[k] = v.copy()
 		}
 		done <- newMap
+	}
+	return <-done
+}
+
+func (rs *Records) NumClientHangups() *big.Int {
+	rs.Init()
+	done := make(chan *big.Int)
+	rs.requests <- func() {
+		result := big.Int{}
+		for _, v := range rs.urlRecordMap {
+			result.Add(&result, &v.NumClientHangups)
+		}
+		done <- &result
 	}
 	return <-done
 }

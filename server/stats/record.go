@@ -12,9 +12,10 @@ func newRecord(url string) *record {
 }
 
 type record struct {
-	Url           string
-	CreatedAt     time.Time
-	TotalRequests big.Int
+	Url              string
+	CreatedAt        time.Time
+	TotalRequests    big.Int
+	NumClientHangups big.Int
 }
 
 func (r *record) copy() *record {
@@ -23,9 +24,14 @@ func (r *record) copy() *record {
 		CreatedAt: r.CreatedAt,
 	}
 	c.TotalRequests.Set(&r.TotalRequests)
+	c.NumClientHangups.Set(&r.NumClientHangups)
 	return &c
 }
 
 func (r *record) addRequest() {
 	r.TotalRequests.Add(&r.TotalRequests, bigOne)
+}
+
+func (r *record) addClientHangup() {
+	r.NumClientHangups.Add(&r.NumClientHangups, bigOne)
 }
