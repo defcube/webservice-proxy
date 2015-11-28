@@ -3,11 +3,11 @@ package server_test
 import (
 	"fmt"
 	"github.com/defcube/webservice-proxy/server"
+	"github.com/defcube/webservice-proxy/server/testhelpers/echohandler"
 	"github.com/defcube/webservice-proxy/server/testhelpers/httpclient"
 	"github.com/defcube/webservice-proxy/server/testhelpers/nextportgenerator"
 	"github.com/defcube/webservice-proxy/server/testhelpers/stoppablehttpserver"
 	"github.com/stretchr/testify/assert"
-	"net/http"
 	"net/url"
 	"testing"
 	"time"
@@ -18,7 +18,7 @@ func TestProxyPost(t *testing.T) {
 	targetPort, targetUrl := nextPortAndUrl()
 	s := stoppablehttpserver.New(proxyPort, &server.Server{})
 	defer s.Stop()
-	foobarS := stoppablehttpserver.New(targetPort, &EchoHandler{})
+	foobarS := stoppablehttpserver.New(targetPort, &echohandler.EchoHandler{})
 	defer foobarS.Stop()
 
 	r, err := httpclient.HttpPostForm(proxyUrl, url.Values{
@@ -33,38 +33,24 @@ func TestProxyPost(t *testing.T) {
 	}
 }
 
-func nextPortAndUrl() (portStr string, urlStr string) {
-	portStr = nextportgenerator.NextAsColonString()
-	urlStr = fmt.Sprintf("http://localhost%v", portStr)
-	return
-}
-
 func TestTimeoutProxyPost(t *testing.T) {
 	proxyPort, proxyUrl := nextPortAndUrl()
 	targetPort, targetUrl := nextPortAndUrl()
 	s := stoppablehttpserver.New(proxyPort, &server.Server{})
 	defer s.Stop()
-	targetServer := stoppablehttpserver.New(targetPort, &EchoHandler{Delay: 5 * time.Second})
+	targetServer := stoppablehttpserver.New(targetPort, &echohandler.EchoHandler{Delay: 5 * time.Second})
 	defer targetServer.Stop()
 
-	r, err := httpclient.HttpPostForm(proxyUrl, url.Values{
-		"-url":    {targetUrl},
-		"echoval": {"foobar"},
+	_, err := httpclient.HttpPostForm(proxyUrl, url.Values{
+		"-url":            {targetUrl},
+		"-timeoutSeconds": {"1"},
+		"echoval":         {"foobar"},
 	})
-	if err != nil {
-		panic(err)
-	}
-	// TODO expect an error here instead
-	assert.Equal(t, r, "foobar")
+	assert.NotNil(t, err)
 }
 
-type EchoHandler struct {
-
-	// Delay specifies how much to sleep before serving the response
-	Delay time.Duration
-}
-
-func (s *EchoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(s.Delay)
-	fmt.Fprint(w, r.PostFormValue("echoval"))
+func nextPortAndUrl() (portStr string, urlStr string) {
+	portStr = nextportgenerator.NextAsColonString()
+	urlStr = fmt.Sprintf("http://localhost%v", portStr)
+	return
 }
