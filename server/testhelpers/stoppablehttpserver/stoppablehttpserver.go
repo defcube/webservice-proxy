@@ -13,11 +13,14 @@ type StoppableHttpServer struct {
 
 func (s *StoppableHttpServer) Stop() {
 	s.ln.Close()
-	<-s.done //wait until server shuts down
+
+	//wait until server shuts down
+	<-s.done
 }
 
 func (s *StoppableHttpServer) Start() error {
-	return s.srv.Serve(s.ln)
+	e := s.srv.Serve(s.ln)
+	return e
 }
 
 // NewStoppableHttpServer creates a StoppableHttpServer and calls Start() on it
