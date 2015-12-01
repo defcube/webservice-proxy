@@ -30,7 +30,7 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		select {
 		case <-closeCh:
-			s.statsRecords.RecordClientHangup(targetUrl)
+			s.getCurrentStatsRecords().RecordClientHangup(targetUrl)
 		case <-doneCh:
 			// this makes it so we don't wait forever if closeCh never fires
 		}
@@ -47,7 +47,7 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 		timeoutSeconds = 60
 	}
 
-	s.statsRecords.RecordRequest(targetUrl)
+	s.getCurrentStatsRecords().RecordRequest(targetUrl)
 
 	client := http.Client{Timeout: time.Duration(timeoutSeconds) * time.Second}
 	resp, err := client.PostForm(targetUrl, form)
@@ -79,7 +79,7 @@ func (s *Server) writeResponse(w http.ResponseWriter, respBody []byte, targetUrl
 }
 
 func (s *Server) handleStatsNumClientHangups(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(s.statsRecords.NumClientHangups().String()))
+	fmt.Fprint(w, s.getCurrentStatsRecords().NumClientHangups())
 }
 
 var adminForm = gforms.DefineForm(gforms.NewFields(
@@ -88,7 +88,7 @@ var adminForm = gforms.DefineForm(gforms.NewFields(
 ))
 
 func (s *Server) handleAdmin(w http.ResponseWriter, r *http.Request) {
-	recordList := s.statsRecords.List()
+	recordList := s.getCurrentStatsRecords().List()
 	err := s.templates.ExecuteTemplate(w, "index.html", map[string]interface{}{
 		"StatsRecords": recordList,
 	})

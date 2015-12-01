@@ -2,7 +2,7 @@ package stats_test
 
 import (
 	"fmt"
-	"github.com/defcube/webservice-proxy/server/stats"
+	"github.com/defcube/webservice-proxy/server/internal/stats"
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
@@ -26,6 +26,6 @@ func TestRecordRequest(t *testing.T) {
 	records.MustRecordRequest("http://foo.bar/")
 	records.MustRecordRequest("http://foo.bar/after1")
 	assert.Len(t, l, 101)
-	assert.Equal(t, "100", l["http://foo.bar/"].TotalRequests.String())
-	assert.Equal(t, "101", records.List()["http://foo.bar/"].TotalRequests.String())
+	assert.Equal(t, int64(100), l["http://foo.bar/"].TotalRequests)
+	assert.Equal(t, int64(101), records.List()["http://foo.bar/"].TotalRequests)
 }

@@ -8,9 +8,9 @@
 package static
 
 import (
+	"net/http"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,7 +32,7 @@ type asset struct {
 
 // makefile reads file data from disk. It returns an error on failure.
 func makefile() (*asset, error) {
-	path := "/Users/pgatt/projects/webservice-proxy/src/github.com/defcube/webservice-proxy/server/static/Makefile"
+	path := "/Users/pgatt/projects/webservice-proxy/src/github.com/defcube/webservice-proxy/server/internal/static/Makefile"
 	name := "Makefile"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
@@ -50,7 +50,7 @@ func makefile() (*asset, error) {
 
 // bindata_assetfsGo reads file data from disk. It returns an error on failure.
 func bindata_assetfsGo() (*asset, error) {
-	path := "/Users/pgatt/projects/webservice-proxy/src/github.com/defcube/webservice-proxy/server/static/bindata_assetfs.go"
+	path := "/Users/pgatt/projects/webservice-proxy/src/github.com/defcube/webservice-proxy/server/internal/static/bindata_assetfs.go"
 	name := "bindata_assetfs.go"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
@@ -68,7 +68,7 @@ func bindata_assetfsGo() (*asset, error) {
 
 // teststaticTxt reads file data from disk. It returns an error on failure.
 func teststaticTxt() (*asset, error) {
-	path := "/Users/pgatt/projects/webservice-proxy/src/github.com/defcube/webservice-proxy/server/static/teststatic.txt"
+	path := "/Users/pgatt/projects/webservice-proxy/src/github.com/defcube/webservice-proxy/server/internal/static/teststatic.txt"
 	name := "teststatic.txt"
 	bytes, err := bindataRead(path, name)
 	if err != nil {
@@ -136,9 +136,9 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"Makefile":           makefile,
+	"Makefile": makefile,
 	"bindata_assetfs.go": bindata_assetfsGo,
-	"teststatic.txt":     teststaticTxt,
+	"teststatic.txt": teststaticTxt,
 }
 
 // AssetDir returns the file names below a certain
@@ -180,11 +180,10 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
-
 var _bintree = &bintree{nil, map[string]*bintree{
-	"Makefile":           &bintree{makefile, map[string]*bintree{}},
+	"Makefile": &bintree{makefile, map[string]*bintree{}},
 	"bindata_assetfs.go": &bintree{bindata_assetfsGo, map[string]*bintree{}},
-	"teststatic.txt":     &bintree{teststaticTxt, map[string]*bintree{}},
+	"teststatic.txt": &bintree{teststaticTxt, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory
@@ -233,6 +232,7 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
+
 
 func assetFS() http.FileSystem {
 	for k := range _bintree.Children {

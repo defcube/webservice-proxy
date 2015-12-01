@@ -1,0 +1,23 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/bluele/gforms",
+			"repository": "https://github.com/bluele/gforms",
+			"revision": "ec75b4a1d312d919a62410c8124312922c58f84e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/namsral/flag",
+			"repository": "https://github.com/namsral/flag",
+			"revision": "881a43080604bcf99ab1118a814d1cb2c268fc36",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/simonz05/stathat",
+			"repository": "https://github.com/simonz05/stathat",
+			"revision": "feea17eb923de13e2394274a87c6b3e1f4056a3d",
+			"branch": "master"
+		}
+	]
+}

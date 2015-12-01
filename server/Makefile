@@ -1,3 +1,3 @@
 all:
-	$(MAKE) -C templates all
-	$(MAKE) -C static all
+	$(MAKE) -C internal/templates all
+	$(MAKE) -C internal/static all

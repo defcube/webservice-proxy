@@ -1,11 +1,8 @@
 package stats
 
 import (
-	"math/big"
 	"time"
 )
-
-var bigOne = (&big.Int{}).SetInt64(1)
 
 func newRecord(url string) *record {
 	return &record{Url: url, CreatedAt: time.Now()}
@@ -14,24 +11,24 @@ func newRecord(url string) *record {
 type record struct {
 	Url              string
 	CreatedAt        time.Time
-	TotalRequests    big.Int
-	NumClientHangups big.Int
+	TotalRequests    int64
+	NumClientHangups int64
 }
 
 func (r *record) copy() *record {
 	c := record{
-		Url:       r.Url,
-		CreatedAt: r.CreatedAt,
+		Url:              r.Url,
+		CreatedAt:        r.CreatedAt,
+		TotalRequests:    r.TotalRequests,
+		NumClientHangups: r.NumClientHangups,
 	}
-	c.TotalRequests.Set(&r.TotalRequests)
-	c.NumClientHangups.Set(&r.NumClientHangups)
 	return &c
 }
 
 func (r *record) addRequest() {
-	r.TotalRequests.Add(&r.TotalRequests, bigOne)
+	r.TotalRequests += 1
 }
 
 func (r *record) addClientHangup() {
-	r.NumClientHangups.Add(&r.NumClientHangups, bigOne)
+	r.NumClientHangups += 1
 }

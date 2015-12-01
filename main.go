@@ -1,9 +1,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/defcube/webservice-proxy/server"
+	"github.com/namsral/flag"
 	"net/http"
 )
 

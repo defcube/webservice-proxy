@@ -2,7 +2,6 @@ package stats
 
 import (
 	"errors"
-	"math/big"
 	"sync"
 )
 
@@ -14,7 +13,7 @@ type Records struct {
 	urlRecordMap map[string]*record
 }
 
-func (rs *Records) Init() {
+func (rs *Records) init() {
 	rs.initOnce.Do(func() {
 		rs.urlRecordMap = make(map[string]*record)
 		rs.requests = make(chan (func()), 1000)
@@ -43,7 +42,7 @@ func (rs *Records) getOrCreateRecord(url string) *record {
 // addUrlRecordMapRequest requests that the function f be ran in a single thread.
 // This is the safe way to interact with the urlRecordMap
 func (rs *Records) addUrlRecordMapRequest(f func()) error {
-	rs.Init()
+	rs.init()
 	select {
 	case rs.requests <- f:
 		return nil
@@ -78,7 +77,7 @@ func (rs *Records) MustRecordRequest(url string) {
 // List provides threadsafe access to the internal list. Raises an
 // error if buffers are full
 func (rs *Records) List() map[string]*record {
-	rs.Init()
+	rs.init()
 	done := make(chan map[string]*record)
 	rs.requests <- func() {
 		newMap := make(map[string]*record)
@@ -90,15 +89,15 @@ func (rs *Records) List() map[string]*record {
 	return <-done
 }
 
-func (rs *Records) NumClientHangups() *big.Int {
-	rs.Init()
-	done := make(chan *big.Int)
+func (rs *Records) NumClientHangups() int64 {
+	rs.init()
+	done := make(chan int64)
 	rs.requests <- func() {
-		result := big.Int{}
+		result := int64(0)
 		for _, v := range rs.urlRecordMap {
-			result.Add(&result, &v.NumClientHangups)
+			result += v.NumClientHangups
 		}
-		done <- &result
+		done <- result
 	}
 	return <-done
 }
