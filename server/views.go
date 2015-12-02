@@ -20,7 +20,8 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 	targetUrl := form.Get("-url")
 	form.Del("-url")
 	if targetUrl == "" {
-		panic("missing url") // todo handle gracefully
+		w.WriteHeader(500)
+		fmt.Fprint(w, "Missing the -url post argument")
 	}
 
 	// Look out for things closing when they shouldn't
@@ -60,22 +61,18 @@ func (s *Server) handleProxy(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		w.WriteHeader(500)
-		s.writeResponse(w, []byte(fmt.Sprint("Error:", err)), targetUrl)
+		fmt.Fprint(w, "Error:", err)
 		return
 	}
 	w.WriteHeader(resp.StatusCode)
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err) // todo
+		// TODO count stats
+		w.WriteHeader(500)
+		w.WriteHeader([]byte("Could not read response"))
+		return
 	}
-	s.writeResponse(w, respBody, targetUrl)
-}
-
-func (s *Server) writeResponse(w http.ResponseWriter, respBody []byte, targetUrl string) {
-	i, err := w.Write(respBody)
-	if err != nil {
-		log.Println("Got error writing response:", i, "Err:", err)
-	}
+	w.Write(respBody)
 }
 
 func (s *Server) handleStatsNumClientHangups(w http.ResponseWriter, r *http.Request) {
